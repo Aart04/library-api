@@ -7,6 +7,7 @@ from rest_framework import filters
 
 from .models import Book
 from .serializers import BookSerializer
+from .services import get_book_data
 
 from datetime import date
 
@@ -47,3 +48,8 @@ class BookList(generics.ListAPIView):
         return queryset
 
 
+# class LibrarySave(APIView):
+#
+#     def post(self, request, format=None):
+#        q = request.data
+#        books = get_book_data(q=q)
