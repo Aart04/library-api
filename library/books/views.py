@@ -36,7 +36,7 @@ class BookList(generics.ListAPIView):
         published_date_year = self.request.query_params.get('published_date')
         authors = self.request.query_params.getlist('author')
 
-        if authors is not None:
+        if authors:
             queryset = queryset.filter(authors__fullname__in=authors).distinct()
 
         published_date_temp = None
