@@ -10,7 +10,7 @@ from rest_framework import filters
 
 from .models import Book
 from .serializers import BookSerializer
-from .filters import AuthorFilter
+
 from datetime import date
 
 
@@ -31,17 +31,23 @@ class BookDetail(APIView):
 class BookList(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
+    filter_backends = [filters.OrderingFilter]
     ordering_fields = ['published_date']
-    filterset_class = AuthorFilter
 
 
     def get_queryset(self):
         queryset = Book.objects.all()
         published_date_year = self.request.query_params.get('published_date')
+        authors = self.request.query_params.getlist('author')
+
+        if authors is not None:
+            queryset = queryset.filter(authors__fullname__in=authors).distinct()
+
         published_date_temp = None
         if published_date_year is not None:
             published_date_temp = date(int(published_date_year), 1, 1)
         if published_date_temp is not None:
             queryset = queryset.filter(published_date__year=published_date_temp.year)
         return queryset
+
+
