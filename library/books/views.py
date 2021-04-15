@@ -1,7 +1,4 @@
-from django.shortcuts import render
 from django.http import Http404
-
-from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -33,7 +30,6 @@ class BookList(generics.ListAPIView):
     serializer_class = BookSerializer
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['published_date']
-
 
     def get_queryset(self):
         queryset = Book.objects.all()
