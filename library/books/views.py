@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import filters
+from rest_framework import status
 
 from .models import Book
 from .serializers import BookSerializer
@@ -48,8 +49,34 @@ class BookList(generics.ListAPIView):
         return queryset
 
 
-# class LibrarySave(APIView):
-#
-#     def post(self, request, format=None):
-#        q = request.data
-#        books = get_book_data(q=q)
+class LibrarySave(APIView):
+
+    def post(self, request, format=None):
+        q = request.data['q']
+        books = get_book_data(q=q)["items"]
+
+        for book in books:
+            id = book["id"]
+            volume_info = book["volumeInfo"]
+            title = volume_info["title"]
+            authors = volume_info["authors"]
+            published_date = volume_info["publishedDate"]
+            if "categories" in volume_info:
+                categories = volume_info["categories"]
+            else:
+                categories = []
+            if "averageRating" in volume_info:
+                average_rating = volume_info["averageRating"]
+            else:
+                average_rating = None
+            if "ratingsCount" in volume_info:
+                ratings_count = volume_info["ratingsCount"]
+            else:
+                ratings_count = None
+            if "imageLinks" in volume_info:
+                imageLinks = volume_info["imageLinks"]
+                if "thumbnail" in imageLinks:
+                    thumbnail = volume_info["imageLinks"]["thumbnail"]
+                else:
+                    thumbnail = None
+        return Response(data=books, status=status.HTTP_201_CREATED)
