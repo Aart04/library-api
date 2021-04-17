@@ -62,9 +62,17 @@ class LibrarySave(APIView):
             book_id = book["id"]
             volume_info = book["volumeInfo"]
             title = volume_info["title"]
-            if "authors" in volume_info:
-                authors = volume_info["authors"]
-            if "published_date" in volume_info:
+            volume_info_fields = {"authors": [],
+                                  "categories": [],
+                                  "averageRating": None,
+                                  "ratingsCount": None,
+                                  "imageLinks": None
+                                  }
+            for k, v in volume_info_fields.items():
+                if k in volume_info:
+                    volume_info_fields[k] = volume_info[k]
+
+            if "publishedDate" in volume_info:
                 published_date = volume_info["publishedDate"]
                 split_date = published_date.split("-")
                 if len(split_date) == 1:
@@ -79,40 +87,28 @@ class LibrarySave(APIView):
             else:
                 published_date_type = None
                 published_date_formatted = None
-            if "categories" in volume_info:
-                categories = volume_info["categories"]
-            else:
-                categories = []
-            if "averageRating" in volume_info:
-                average_rating = volume_info["averageRating"]
-            else:
-                average_rating = None
-            if "ratingsCount" in volume_info:
-                ratings_count = volume_info["ratingsCount"]
-            else:
-                ratings_count = None
-            if "imageLinks" in volume_info:
-                imageLinks = volume_info["imageLinks"]
-                if "thumbnail" in imageLinks:
+
+            if volume_info_fields["imageLinks"] is not None:
+                if "thumbnail" in volume_info_fields["imageLinks"]:
                     thumbnail = volume_info["imageLinks"]["thumbnail"]
-                else:
-                    thumbnail = None
+            else:
+                thumbnail = None
 
             b = Book(book_id=book_id,
                      title=title,
                      published_date_type=published_date_type,
                      published_date=published_date_formatted,
-                     average_rating=average_rating,
-                     ratings_count=ratings_count,
+                     average_rating=volume_info_fields["averageRating"],
+                     ratings_count=volume_info_fields["ratingsCount"],
                      thumbnail=thumbnail)
             b.save()
 
-            for author_fullname in authors:
+            for author_fullname in volume_info_fields["authors"]:
                 a = Author(fullname=author_fullname)
                 a.save()
                 b.authors.add(a)
 
-            for category_name in categories:
+            for category_name in volume_info_fields["categories"]:
                 c = Category(name=category_name)
                 c.save()
                 b.categories.add(c)
