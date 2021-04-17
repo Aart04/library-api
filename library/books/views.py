@@ -2,9 +2,8 @@ from django.http import Http404
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics
-from rest_framework import filters
-from rest_framework import status
+from rest_framework import generics, filters, status
+from rest_framework.exceptions import APIException
 
 from .models import Book, Author, Category
 from .serializers import BookSerializer
@@ -43,7 +42,11 @@ class BookList(generics.ListAPIView):
 
         published_date_temp = None
         if published_date_year is not None:
-            published_date_temp = date(int(published_date_year), 1, 1)
+            try:
+                published_date_temp = date(int(published_date_year), 1, 1)
+            except ValueError:
+                raise APIException(detail="wrong date")
+
         if published_date_temp is not None:
             queryset = queryset.filter(published_date__year=published_date_temp.year)
         return queryset
