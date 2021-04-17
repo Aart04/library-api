@@ -20,4 +20,4 @@ RUN adduser -D myuser
 USER myuser
 
 # run gunicorn
-CMD gunicorn stx-next.wsgi:application --bind 0.0.0.0:$PORT
+CMD gunicorn library.wsgi:application --bind 0.0.0.0:$PORT
