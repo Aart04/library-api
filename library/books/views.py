@@ -113,4 +113,4 @@ class LibrarySave(APIView):
                 c.save()
                 b.categories.add(c)
 
-        return Response(data=books, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
