@@ -14,6 +14,7 @@ class Book(models.Model):
         (PARTIAL_DAY, 'Full year'),
     )
 
+    book_id = models.CharField(max_length=250, unique=True)
     title = models.CharField(max_length=250)
     authors = models.ManyToManyField('Author')
     published_date_type = models.CharField(max_length=100, choices=PARTIAL_DATE_TYPES)
@@ -46,14 +47,14 @@ class Book(models.Model):
 
 
 class Author(models.Model):
-    fullname = models.CharField(max_length=200)
+    fullname = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
         return self.fullname
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
 
     class Meta:
         verbose_name_plural = "Categories"
