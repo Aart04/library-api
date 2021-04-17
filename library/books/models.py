@@ -18,10 +18,10 @@ class Book(models.Model):
     authors = models.ManyToManyField('Author')
     published_date_type = models.CharField(max_length=100, choices=PARTIAL_DATE_TYPES)
     published_date = models.DateField()
-    categories = models.ManyToManyField('Category')
-    average_rating = models.DecimalField(max_digits=2, decimal_places=1)
-    ratings_count = models.PositiveIntegerField()
-    thumbnail = models.URLField()
+    categories = models.ManyToManyField('Category', blank=True, null=True)
+    average_rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
+    ratings_count = models.PositiveIntegerField(blank=True, null=True)
+    thumbnail = models.URLField(blank=True, null=True)
 
     def clean(self):
         if self.published_date is not None:
