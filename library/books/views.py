@@ -6,7 +6,7 @@ from rest_framework import generics
 from rest_framework import filters
 from rest_framework import status
 
-from .models import Book
+from .models import Book, Author, Category
 from .serializers import BookSerializer
 from .services import get_book_data
 
@@ -15,14 +15,14 @@ from datetime import date
 
 class BookDetail(APIView):
 
-    def get_object(self, pk):
+    def get_object(self, book_id):
         try:
-            return Book.objects.get(pk=pk)
+            return Book.objects.get(book_id=book_id)
         except Book.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
-        book = self.get_object(pk)
+    def get(self, request, book_id, format=None):
+        book = self.get_object(book_id)
         serializer = BookSerializer(book)
         return Response(serializer.data)
 
@@ -56,11 +56,26 @@ class LibrarySave(APIView):
         books = get_book_data(q=q)["items"]
 
         for book in books:
-            id = book["id"]
+            book_id = book["id"]
             volume_info = book["volumeInfo"]
             title = volume_info["title"]
-            authors = volume_info["authors"]
-            published_date = volume_info["publishedDate"]
+            if "authors" in volume_info:
+                authors = volume_info["authors"]
+            if "published_date" in volume_info:
+                published_date = volume_info["publishedDate"]
+                split_date = published_date.split("-")
+                if len(split_date) == 1:
+                    published_date_type = Book.PARTIAL_YEAR
+                    published_date_formatted = date(int(split_date[0]), 1, 1)
+                elif len(split_date) == 2:
+                    published_date_type = Book.PARTIAL_MONTH
+                    published_date_formatted = date(int(split_date[0]), int(split_date[1]), 1)
+                elif len(split_date) == 3:
+                    published_date_type = Book.PARTIAL_MONTH
+                    published_date_formatted = date(int(split_date[0]), int(split_date[1]), int(split_date[2]))
+            else:
+                published_date_type = None
+                published_date_formatted = None
             if "categories" in volume_info:
                 categories = volume_info["categories"]
             else:
@@ -79,4 +94,24 @@ class LibrarySave(APIView):
                     thumbnail = volume_info["imageLinks"]["thumbnail"]
                 else:
                     thumbnail = None
+
+            b = Book(book_id=book_id,
+                     title=title,
+                     published_date_type=published_date_type,
+                     published_date=published_date_formatted,
+                     average_rating=average_rating,
+                     ratings_count=ratings_count,
+                     thumbnail=thumbnail)
+            b.save()
+
+            for author_fullname in authors:
+                a = Author(fullname=author_fullname)
+                a.save()
+                b.authors.add(a)
+
+            for category_name in categories:
+                c = Category(name=category_name)
+                c.save()
+                b.categories.add(c)
+
         return Response(data=books, status=status.HTTP_201_CREATED)

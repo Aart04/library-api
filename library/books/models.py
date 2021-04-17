@@ -14,12 +14,12 @@ class Book(models.Model):
         (PARTIAL_DAY, 'Full year'),
     )
 
-    book_id = models.CharField(max_length=250, unique=True)
+    book_id = models.CharField(max_length=250, primary_key=True)
     title = models.CharField(max_length=250)
     authors = models.ManyToManyField('Author')
-    published_date_type = models.CharField(max_length=100, choices=PARTIAL_DATE_TYPES)
-    published_date = models.DateField()
-    categories = models.ManyToManyField('Category', blank=True, null=True)
+    published_date_type = models.CharField(max_length=100, choices=PARTIAL_DATE_TYPES, blank=True, null=True)
+    published_date = models.DateField(blank=True, null=True)
+    categories = models.ManyToManyField('Category', blank=True)
     average_rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
     ratings_count = models.PositiveIntegerField(blank=True, null=True)
     thumbnail = models.URLField(blank=True, null=True)
@@ -47,14 +47,14 @@ class Book(models.Model):
 
 
 class Author(models.Model):
-    fullname = models.CharField(max_length=200, unique=True)
+    fullname = models.CharField(max_length=200, primary_key=True)
 
     def __str__(self):
         return self.fullname
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=200, primary_key=True)
 
     class Meta:
         verbose_name_plural = "Categories"
