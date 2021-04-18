@@ -133,5 +133,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'ORDERING_PARAM': 'sort',
+    'EXCEPTION_HANDLER': 'books.utils.custom_exception_handler'
 }
 
