@@ -19,5 +19,5 @@ def get_book_data(q):
     elif response_status == status.HTTP_503_SERVICE_UNAVAILABLE:
         raise ServiceUnavailable
     else:
-        raise APIException(status=response_status)
+        raise APIException(code=response_status)
 

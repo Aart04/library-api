@@ -56,8 +56,10 @@ class LibrarySave(APIView):
 
     def post(self, request, format=None):
         q = request.data['q']
-        if "items" in q:
-            books = get_book_data(q=q)["items"]
+        response = get_book_data(q=q)
+
+        if "items" in response:
+            books = response["items"]
         else:
             raise Http404
 
