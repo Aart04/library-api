@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import generics, filters, status
 from rest_framework.exceptions import APIException
 
-from .models import Book, Author, Category
+from .models import Book, Author, Category, partial_str_date_to_date
 from .serializers import BookSerializer
 from .services import get_book_data
 
@@ -64,40 +64,27 @@ class LibrarySave(APIView):
             title = volume_info["title"]
             volume_info_fields = {"authors": [],
                                   "categories": [],
+                                  "publishedDate": None,
                                   "averageRating": None,
                                   "ratingsCount": None,
                                   "imageLinks": None
                                   }
+            published_date_type = None
+            thumbnail = None
             for k, v in volume_info_fields.items():
                 if k in volume_info:
-                    volume_info_fields[k] = volume_info[k]
-
-            if "publishedDate" in volume_info:
-                published_date = volume_info["publishedDate"]
-                split_date = published_date.split("-")
-                if len(split_date) == 1:
-                    published_date_type = Book.PARTIAL_YEAR
-                    published_date_formatted = date(int(split_date[0]), 1, 1)
-                elif len(split_date) == 2:
-                    published_date_type = Book.PARTIAL_MONTH
-                    published_date_formatted = date(int(split_date[0]), int(split_date[1]), 1)
-                elif len(split_date) == 3:
-                    published_date_type = Book.PARTIAL_MONTH
-                    published_date_formatted = date(int(split_date[0]), int(split_date[1]), int(split_date[2]))
-            else:
-                published_date_type = None
-                published_date_formatted = None
-
-            if volume_info_fields["imageLinks"] is not None:
-                if "thumbnail" in volume_info_fields["imageLinks"]:
-                    thumbnail = volume_info["imageLinks"]["thumbnail"]
-            else:
-                thumbnail = None
+                    if k == "publishedDate":
+                        published_date_type, volume_info_fields[k] = partial_str_date_to_date(volume_info[k])
+                    elif k == "imageLinks":
+                        if "thumbnail" in volume_info["imageLinks"]:
+                            thumbnail = volume_info["imageLinks"]["thumbnail"]
+                    else:
+                        volume_info_fields[k] = volume_info[k]
 
             b = Book(book_id=book_id,
                      title=title,
                      published_date_type=published_date_type,
-                     published_date=published_date_formatted,
+                     published_date=volume_info_fields["publishedDate"],
                      average_rating=volume_info_fields["averageRating"],
                      ratings_count=volume_info_fields["ratingsCount"],
                      thumbnail=thumbnail)

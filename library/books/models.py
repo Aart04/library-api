@@ -62,3 +62,22 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def partial_str_date_to_date(str_date):
+    date_type = None
+    date_formatted = None
+
+    split_date = str_date.split("-")
+
+    if len(split_date) == 1:
+        date_type = Book.PARTIAL_YEAR
+        date_formatted = date(int(split_date[0]), 1, 1)
+    elif len(split_date) == 2:
+        date_type = Book.PARTIAL_MONTH
+        date_formatted = date(int(split_date[0]), int(split_date[1]), 1)
+    elif len(split_date) == 3:
+        date_type = Book.PARTIAL_MONTH
+        date_formatted = date(int(split_date[0]), int(split_date[1]), int(split_date[2]))
+
+    return date_type, date_formatted
